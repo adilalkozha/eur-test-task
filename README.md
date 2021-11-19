@@ -15,5 +15,5 @@
 
 ```psql
 CREATE DATABASE eurbank;
-CREATE USER eurbank WITH PASSWORD 'password';
+CREATE USER adil WITH PASSWORD 'password';
 GRANT ALL PRIVILEGES ON DATABASE eurbank to eurbank;
