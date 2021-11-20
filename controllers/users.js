@@ -8,7 +8,7 @@ module.exports.createUser = async (req, res) => {
     if (!req.body.user.username) throw new Error("Username in required.");
     if (!req.body.user.email) throw new Error("Email in required.");
     if (!req.body.user.password) throw new Error("Password in required.");
-    const pword = await hashPassword(req.body.password);
+    const pword = await hashPassword(req.body.user.password);
     const user = await User.create({
       username: req.body.user.username,
       password: pword,
