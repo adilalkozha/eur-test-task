@@ -6,18 +6,19 @@ const { sign } = require("../utils/jwt");
 
 module.exports.createUser = async (req, res) => {
   try {
-    if (!req.body.user.username) throw new Error("Username in required.");
-    if (!req.body.user.email) throw new Error("Email in required.");
-    if (!req.body.user.password) throw new Error("Password in required.");
-    const pword = await hashPassword(req.body.user.password);
-    const checkUserExisting = await User.findByPk(req.body.user.email);
+    console.log(req.body);
+    if (!req.body.username) throw new Error("Username in required.");
+    if (!req.body.email) throw new Error("Email in required.");
+    if (!req.body.password) throw new Error("Password in required.");
+    const pword = await hashPassword(req.body.password);
+    const checkUserExisting = await User.findByPk(req.body.email);
     if (checkUserExisting) {
-      throw new Error("User created!");
+      return new Error("User created!");
     }
     const user = await User.create({
-      username: req.body.user.username,
+      username: req.body.username,
       password: pword,
-      email: req.body.user.email,
+      email: req.body.email,
     });
     if (user) {
       if (user.dataValues.password) {
@@ -35,27 +36,26 @@ module.exports.createUser = async (req, res) => {
 
 module.exports.login = async (req, res) => {
   try {
-    if (!req.body.user.email) throw new Error("Email is required.");
-    if (!req.body.user.password) throw new Error("Password is required");
-    const user = await User.findByPk(req.body.user.email);
+    if (!req.body.email) throw new Error("Email is required.");
+    if (!req.body.password) throw new Error("Password is required");
+    const user = await User.findByPk(req.body.email);
 
     if (!user) {
       res.status(401);
-      throw new Error("No User with this email id");
+      return new Error("No User with this email id");
     }
 
-    const checkPassword = await matchPassword(
-      user.password,
-      req.body.user.password
-    );
+    const checkPassword = await matchPassword(user.password, req.body.password);
 
     if (!checkPassword) {
-      throw new Error("Invalid password.");
+      return new Error("Invalid password.");
     }
     delete user.dataValues.password;
-    user.dataValues.token = await sign({email: user.dataValues.email,username:user.dataValues.password})
-    res.status(200).json({user})
-
+    user.dataValues.token = await sign({
+      email: user.dataValues.email,
+      username: user.dataValues.password,
+    });
+    res.status(200).json({ user });
   } catch (err) {
     console.log(err);
   }
