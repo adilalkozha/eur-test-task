@@ -3,10 +3,10 @@ const User = require("../models/User");
 
 const { hashPassword, matchPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
+const { resolvePatternPath } = require("swagger-autogen/src/utils");
 
 module.exports.createUser = async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.username) throw new Error("Username in required.");
     if (!req.body.email) throw new Error("Email in required.");
     if (!req.body.password) throw new Error("Password in required.");
@@ -30,7 +30,8 @@ module.exports.createUser = async (req, res) => {
       res.status(201).json({ user });
     }
   } catch (err) {
-    console.log(err);
+    res
+    .json({ errors: { body: ["Could not create user ", err.message] } });
   }
 };
 
@@ -48,15 +49,32 @@ module.exports.login = async (req, res) => {
     const checkPassword = await matchPassword(user.password, req.body.password);
 
     if (!checkPassword) {
-      return new Error("Invalid password.");
+      throw new Error("Invalid password.");
     }
     delete user.dataValues.password;
     user.dataValues.token = await sign({
       email: user.dataValues.email,
-      username: user.dataValues.password,
+      username: user.dataValues.username,
     });
     res.status(200).json({ user });
   } catch (err) {
+    const status = res.statusCode ? res.statusCode : 500;
+    res
+      .status(status)
+      .json({ errors: { body: ["Could not create user ", err.message] } });
+  }
+};
+
+module.exports.getByEmail = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.email);
+    if (!user) return new Error("User not found!");
+    delete user.dataValues.password;
+
+    user.dataValues.token = req.header("Authorization").split(" ")[1];
+    return res.status(200).json({ user });
+  } catch (err) {
     console.log(err);
+    return new Error(`Error:${err}`);
   }
 };

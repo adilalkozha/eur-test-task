@@ -14,7 +14,7 @@
   "consumes": [],
   "produces": [],
   "paths": {
-    "/users": {
+    "/register": {
       "post": {
         "tags": [],
         "description": "",
@@ -45,7 +45,7 @@
         }
       }
     },
-    "/users/login": {
+    "/login": {
       "post": {
         "tags": [],
         "description": "",
@@ -72,6 +72,18 @@
           },
           "401": {
             "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": [],
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
