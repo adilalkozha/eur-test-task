@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../dbConnection");
 
-const User = sequelize.define(
-  "User",
+const File = sequelize.define(
+  "File",
   {
     name: {
       type: DataTypes.STRING,
@@ -20,4 +20,4 @@ const User = sequelize.define(
   { timestamps: false }
 );
 
-module.exports = User;
+module.exports = File;

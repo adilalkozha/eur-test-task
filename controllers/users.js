@@ -3,7 +3,6 @@ const User = require("../models/User");
 
 const { hashPassword, matchPassword } = require("../utils/password");
 const { sign } = require("../utils/jwt");
-const { resolvePatternPath } = require("swagger-autogen/src/utils");
 
 module.exports.createUser = async (req, res) => {
   try {
