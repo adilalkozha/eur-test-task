@@ -40,7 +40,7 @@ module.exports.showAll = async (req, res) => {
   return res.status(200).json({ files });
 };
 
-module.exports.getByName = async (req, res) => {
+module.exports.getFilesByEmail = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.email, {
       include: File,
@@ -48,6 +48,24 @@ module.exports.getByName = async (req, res) => {
     if (!user) throw new Error("User not found");
 
     return res.status(200).json({ files: user.Files });
+  } catch (err) {
+    return res.status(404).json({
+      errors: { body: [err.message] },
+    });
+  }
+};
+
+module.exports.getFileByName = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.email, {
+      include: File,
+    });
+    if (!user) throw new Error("User not found");
+    const files = user.Files;
+    const file = files.find(({ name }) => name === req.body.filename);
+
+    if(!file) throw new Error('File not found!');
+    return res.status(200).json({ file });
   } catch (err) {
     return res.status(404).json({
       errors: { body: [err.message] },
