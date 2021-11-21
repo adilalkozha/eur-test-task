@@ -77,3 +77,9 @@ module.exports.getByEmail = async (req, res) => {
     return new Error(`Error:${err}`);
   }
 };
+
+module.exports.showAll = async (req,res) => {
+  const users = await User.findAll()
+  console.log(users)
+  return res.status(200).json({users})
+}
