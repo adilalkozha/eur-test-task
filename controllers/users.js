@@ -12,7 +12,7 @@ module.exports.createUser = async (req, res) => {
     const pword = await hashPassword(req.body.password);
     const checkUserExisting = await User.findByPk(req.body.email);
     if (checkUserExisting) {
-      return new Error("User created!");
+      throw new Error("User created!");
     }
     const user = await User.create({
       username: req.body.username,
@@ -26,10 +26,10 @@ module.exports.createUser = async (req, res) => {
       user.dataValues.token = await sign(user);
       user.dataValues.bio = null;
       user.dataValues.image = null;
-      res.status(201).json({ user });
+      return res.status(201).json({ user });
     }
   } catch (err) {
-    res
+    return res
     .json({ errors: { body: ["Could not create user ", err.message] } });
   }
 };
@@ -42,7 +42,7 @@ module.exports.login = async (req, res) => {
 
     if (!user) {
       res.status(401);
-      return new Error("No User with this email id");
+      throw new Error("No User with this email id");
     }
 
     const checkPassword = await matchPassword(user.password, req.body.password);
@@ -67,14 +67,14 @@ module.exports.login = async (req, res) => {
 module.exports.getByEmail = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.email);
-    if (!user) return new Error("User not found!");
+    if (!user) throw new Error("User not found!");
     delete user.dataValues.password;
 
     user.dataValues.token = req.header("Authorization").split(" ")[1];
     return res.status(200).json({ user });
   } catch (err) {
     console.log(err);
-    return new Error(`Error:${err}`);
+    return res.status(500).json({ error: err.message });
   }
 };
 
