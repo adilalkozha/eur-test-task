@@ -12,7 +12,6 @@ module.exports.uploadImage = async (req, res) => {
     if (!user) throw new Error("User not found");
     delete user.dataValues.password;
 
-
     _.forEach(_.keysIn(req.files.folds), async (key) => {
       let photo = req.files.folds[key];
       photo.mv(path.join(__dirname + "/../assets", "files/") + photo.name);
@@ -20,15 +19,14 @@ module.exports.uploadImage = async (req, res) => {
         name: photo.name,
         mimetype: photo.mimetype,
         size: photo.size,
-        authorEmail: user.dataValues.email,
+        UserEmail: user.dataValues.email,
       });
       if (file) {
-        file.dataValues.authorEmail = user.dataValues.email;
       } else {
         throw new Error("File is not write in database");
       }
     });
-    return res.status(201).json({ message: 'OK' });
+    return res.status(201).json({ message: "OK" });
   } catch (err) {
     const status = res.statusCode ? res.statusCode : 500;
     return await res.status(status).json({
@@ -37,14 +35,22 @@ module.exports.uploadImage = async (req, res) => {
   }
 };
 
-
 module.exports.showAll = async (req, res) => {
   const files = await File.findAll();
   return res.status(200).json({ files });
 };
 
-
 module.exports.getByName = async (req, res) => {
-  const files = await User.findAll();
-  return res.status(200).json({ files });
+  try {
+    const user = await User.findByPk(req.user.email, {
+      include: File,
+    });
+    if (!user) throw new Error("User not found");
+
+    return res.status(200).json({ files: user.Files });
+  } catch (err) {
+    return res.status(404).json({
+      errors: { body: [err.message] },
+    });
+  }
 };

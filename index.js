@@ -16,12 +16,9 @@ const sync = async () => await sequelize.sync({ force: true });
 sync();
 app.use(cors());
 User.hasMany(File,{
-  as: 'files',
   onDelete: 'CASCADE'
 })
-File.belongsTo(User,{
-  as: "author"
-})
+File.belongsTo(User)
 app.use(
   fileUpload({
     createParentPath: true,
